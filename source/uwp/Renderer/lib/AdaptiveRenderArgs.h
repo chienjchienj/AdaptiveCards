@@ -10,7 +10,7 @@ namespace AdaptiveNamespace
         AdaptiveRuntime(AdaptiveRenderArgs);
 
     public:
-        AdaptiveRenderArgs() : m_isInShowCard(false), m_allowAboveTitleIconPlacement(false) {}
+        AdaptiveRenderArgs() : m_isInShowCard(false), m_allowAboveTitleIconPlacement(false), m_ancestorHasFallback(false) {}
 
         HRESULT RuntimeClassInitialize() noexcept;
 
@@ -28,11 +28,15 @@ namespace AdaptiveNamespace
         IFACEMETHODIMP get_AllowAboveTitleIconPlacement(_Out_ boolean* value) override;
         IFACEMETHODIMP put_AllowAboveTitleIconPlacement(boolean value) override;
 
+        IFACEMETHODIMP get_AncestorHasFallback(_Out_ boolean* hasFallback);
+        IFACEMETHODIMP put_AncestorHasFallback(boolean hasFallback);
+
     private:
         ABI::AdaptiveNamespace::ContainerStyle m_containerStyle;
         Microsoft::WRL::ComPtr<IInspectable> m_parentElement;
         boolean m_isInShowCard;
         boolean m_allowAboveTitleIconPlacement;
+        boolean m_ancestorHasFallback;
     };
 
     ActivatableClass(AdaptiveRenderArgs);

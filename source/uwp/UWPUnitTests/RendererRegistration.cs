@@ -51,6 +51,10 @@ namespace UWPUnitTests
             public string IconUrl { get { return ""; } set { } }
             public string Sentiment { get; set; }
             public string Title { get; set; }
+
+            public IAdaptiveActionElement FallbackContent => throw new NotImplementedException();
+
+            public FallbackType FallbackType => throw new NotImplementedException();
         };
 
         class TestActionParser : IAdaptiveActionParser

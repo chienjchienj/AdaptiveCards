@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "AdaptiveActionElement.h"
+#include "Util.h"
 
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;
@@ -23,6 +24,15 @@ namespace AdaptiveNamespace
         RETURN_IF_FAILED(UTF8ToHString(sharedModel->GetSentiment(), m_sentiment.GetAddressOf()));
 
         m_internalId = sharedModel->GetInternalId();
+        m_fallbackType = MapSharedFallbackTypeToUwp(sharedModel->GetFallbackType());
+        if (m_fallbackType == ABI::AdaptiveNamespace::FallbackType::Content)
+        {
+            const auto fallbackObject = std::static_pointer_cast<AdaptiveSharedNamespace::BaseActionElement>(sharedModel->GetFallbackContent());
+            if (fallbackObject)
+            {
+                RETURN_IF_FAILED(GenerateActionProjection(fallbackObject, m_fallbackContent.GetAddressOf()));
+            }
+        }
 
         return S_OK;
     }
@@ -34,6 +44,17 @@ namespace AdaptiveNamespace
     IFACEMETHODIMP AdaptiveActionElementBase::get_Id(_Outptr_ HSTRING* id) { return m_id.CopyTo(id); }
 
     IFACEMETHODIMP AdaptiveActionElementBase::put_Id(_In_ HSTRING id) { return m_id.Set(id); }
+
+    IFACEMETHODIMP AdaptiveActionElementBase::get_FallbackType(_Out_ ABI::AdaptiveNamespace::FallbackType * fallback)
+    {
+        *fallback = m_fallbackType;
+        return S_OK;
+    }
+
+    IFACEMETHODIMP AdaptiveActionElementBase::get_FallbackContent(_COM_Outptr_ ABI::AdaptiveNamespace::IAdaptiveActionElement ** content)
+    {
+        return m_fallbackContent.CopyTo(content);
+    }
 
     HRESULT AdaptiveActionElementBase::get_IconUrl(_Outptr_ HSTRING* iconUrl) { return m_iconUrl.CopyTo(iconUrl); }
 

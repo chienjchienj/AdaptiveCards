@@ -2,29 +2,24 @@
 
 #include "AdaptiveCards.Rendering.Uwp.h"
 #include "Enums.h"
-#include "OpenUrlAction.h"
+#include "UnknownAction.h"
 #include "AdaptiveActionElement.h"
 
 namespace AdaptiveNamespace
 {
-    class DECLSPEC_UUID("96c1ded5-1ef8-4aa8-8ccf-0bea96295ac8") AdaptiveOpenUrlAction
+    class DECLSPEC_UUID("D5018CF5-97D9-4FC4-88E8-9415D51431B6") AdaptiveUnsupportedAction
         : public Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::RuntimeClassType::WinRtClassicComMix>,
-                                              ABI::AdaptiveNamespace::IAdaptiveOpenUrlAction,
+                                              ABI::AdaptiveNamespace::IAdaptiveUnsupportedAction,
                                               ABI::AdaptiveNamespace::IAdaptiveActionElement,
                                               Microsoft::WRL::CloakedIid<ITypePeek>,
                                               Microsoft::WRL::CloakedIid<AdaptiveNamespace::AdaptiveActionElementBase>>
     {
-        AdaptiveRuntime(AdaptiveOpenUrlAction);
+        AdaptiveRuntime(AdaptiveUnsupportedAction);
 
     public:
         HRESULT RuntimeClassInitialize() noexcept;
-        HRESULT RuntimeClassInitialize(const std::shared_ptr<AdaptiveSharedNamespace::OpenUrlAction>& sharedOpenUrlAction);
+        HRESULT RuntimeClassInitialize(const std::shared_ptr<AdaptiveSharedNamespace::UnknownAction>& sharedUnknownAction);
 
-        // IAdaptiveOpenUrlAction
-        IFACEMETHODIMP get_Url(_COM_Outptr_ ABI::Windows::Foundation::IUriRuntimeClass** url);
-        IFACEMETHODIMP put_Url(_In_ ABI::Windows::Foundation::IUriRuntimeClass* url);
-
-        // IAdaptiveActionElement
         IFACEMETHODIMP get_ActionType(_Out_ ABI::AdaptiveNamespace::ActionType* actionType);
         IFACEMETHODIMP get_ActionTypeString(_Outptr_ HSTRING* value)
         {
@@ -76,14 +71,11 @@ namespace AdaptiveNamespace
             return AdaptiveActionElementBase::ToJson(result);
         }
 
-        virtual HRESULT GetSharedModel(std::shared_ptr<AdaptiveSharedNamespace::BaseActionElement>& sharedModel) override;
+        HRESULT GetSharedModel(std::shared_ptr<BaseActionElement>& sharedModel) override;
 
         // ITypePeek method
         void* PeekAt(REFIID riid) override { return PeekHelper(riid, this); }
-
-    private:
-        Microsoft::WRL::ComPtr<ABI::Windows::Foundation::IUriRuntimeClass> m_url;
     };
 
-    ActivatableClass(AdaptiveOpenUrlAction);
+    ActivatableClass(AdaptiveUnsupportedAction);
 }
