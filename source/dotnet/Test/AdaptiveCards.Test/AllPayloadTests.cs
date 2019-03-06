@@ -126,6 +126,8 @@ namespace AdaptiveCards.Test
                     // These are cards that features haven't been implemented yet
                     "FallbackParsing",
                     "Bleed.Test",
+                    "DeepFallback",
+                    "EmptyFallbackCard",
                 });
         }
     }
