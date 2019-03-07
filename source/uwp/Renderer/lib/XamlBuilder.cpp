@@ -835,6 +835,40 @@ namespace AdaptiveNamespace
         }
     }
 
+    static HRESULT AddRenderedControl(ComPtr<IUIElement> newControl,
+                                      IAdaptiveCardElement* element,
+                                      IPanel* parentPanel,
+                                      std::function<void(IUIElement* child)> childCreatedCallback)
+    {
+        if (newControl != nullptr)
+        {
+            boolean isVisible;
+            RETURN_IF_FAILED(element->get_IsVisible(&isVisible));
+
+            if (!isVisible)
+            {
+                RETURN_IF_FAILED(newControl->put_Visibility(Visibility_Collapsed));
+            }
+
+            HString id;
+            RETURN_IF_FAILED(element->get_Id(id.GetAddressOf()));
+
+            if (id.IsValid())
+            {
+                ComPtr<IFrameworkElement> newControlAsFrameworkElement;
+                RETURN_IF_FAILED(newControl.As(&newControlAsFrameworkElement));
+                RETURN_IF_FAILED(newControlAsFrameworkElement->put_Name(id.Get()));
+            }
+
+            ABI::AdaptiveNamespace::HeightType heightType{};
+            RETURN_IF_FAILED(element->get_Height(&heightType));
+            XamlHelpers::AppendXamlElementToPanel(newControl.Get(), parentPanel, heightType);
+
+            childCreatedCallback(newControl.Get());
+        }
+        return S_OK;
+    }
+
     HRESULT XamlBuilder::BuildPanelChildren(_In_ IVector<IAdaptiveCardElement*>* children,
                                             _In_ IPanel* parentPanel,
                                             _In_ ABI::AdaptiveNamespace::IAdaptiveRenderContext* renderContext,
@@ -879,33 +913,7 @@ namespace AdaptiveNamespace
 
                 ComPtr<IUIElement> newControl;
                 hr = elementRenderer->Render(element, renderContext, renderArgs, &newControl);
-
-                if (newControl != nullptr)
-                {
-                    boolean isVisible;
-                    RETURN_IF_FAILED(element->get_IsVisible(&isVisible));
-
-                    if (!isVisible)
-                    {
-                        RETURN_IF_FAILED(newControl->put_Visibility(Visibility_Collapsed));
-                    }
-
-                    HString id;
-                    RETURN_IF_FAILED(element->get_Id(id.GetAddressOf()));
-
-                    if (id.IsValid())
-                    {
-                        ComPtr<IFrameworkElement> newControlAsFrameworkElement;
-                        RETURN_IF_FAILED(newControl.As(&newControlAsFrameworkElement));
-                        RETURN_IF_FAILED(newControlAsFrameworkElement->put_Name(id.Get()));
-                    }
-
-                    ABI::AdaptiveNamespace::HeightType heightType{};
-                    RETURN_IF_FAILED(element->get_Height(&heightType));
-                    XamlHelpers::AppendXamlElementToPanel(newControl.Get(), parentPanel, heightType);
-
-                    childCreatedCallback(newControl.Get());
-                }
+                RETURN_IF_FAILED(AddRenderedControl(newControl.Get(), element, parentPanel, childCreatedCallback));
             }
 
             if (elementRenderer == nullptr || hr == E_PERFORM_FALLBACK)
@@ -932,51 +940,16 @@ namespace AdaptiveNamespace
                                 // perform this element's fallback
                                 ComPtr<IUIElement> newControl;
                                 fallbackElementRenderer->Render(fallbackElement.Get(), renderContext, renderArgs, &newControl);
-
-                                if (newControl != nullptr)
-                                {
-                                    boolean isVisible;
-                                    RETURN_IF_FAILED(fallbackElement->get_IsVisible(&isVisible));
-
-                                    if (!isVisible)
-                                    {
-                                        RETURN_IF_FAILED(newControl->put_Visibility(Visibility_Collapsed));
-                                    }
-
-                                    HString id;
-                                    RETURN_IF_FAILED(fallbackElement->get_Id(id.GetAddressOf()));
-
-                                    if (id.IsValid())
-                                    {
-                                        ComPtr<IFrameworkElement> newControlAsFrameworkElement;
-                                        RETURN_IF_FAILED(newControl.As(&newControlAsFrameworkElement));
-                                        RETURN_IF_FAILED(newControlAsFrameworkElement->put_Name(id.Get()));
-                                    }
-
-                                    ABI::AdaptiveNamespace::HeightType heightType{};
-                                    RETURN_IF_FAILED(fallbackElement->get_Height(&heightType));
-                                    XamlHelpers::AppendXamlElementToPanel(newControl.Get(), parentPanel, heightType);
-
-                                    childCreatedCallback(newControl.Get());
-                                    hr = S_OK;
-                                    break;
-                                }
+                                RETURN_IF_FAILED(AddRenderedControl(newControl, element, parentPanel, childCreatedCallback));
+                                hr = S_OK;
+                                break;
                             }
 
                             ABI::AdaptiveNamespace::FallbackType fallbackElementFallbackType;
                             fallbackElement->get_FallbackType(&fallbackElementFallbackType);
-                            switch (fallbackElementFallbackType)
+                            if (fallbackElementFallbackType == ABI::AdaptiveNamespace::FallbackType::Content)
                             {
-                            case ABI::AdaptiveNamespace::FallbackType::Drop:
-                                // TODO: something
-                                break;
-                            case ABI::AdaptiveNamespace::FallbackType::Content:
                                 currentElement = fallbackElement;
-                                break;
-                            case ABI::AdaptiveNamespace::FallbackType::None:
-                            default:
-                                // TODO: something
-                                break;
                             }
                         } while (currentElement);
                     }
@@ -987,7 +960,7 @@ namespace AdaptiveNamespace
                 }
                 else if (ancestorHasFallback)
                 {
-                    // throw exception so that parent's fallback can be invoked
+                    // return fallback error code so ancestors know to perform fallback
                     hr = E_PERFORM_FALLBACK;
                 }
                 else
