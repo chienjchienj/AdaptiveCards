@@ -26,7 +26,9 @@ namespace AdaptiveNamespace
         IFACEMETHODIMP put_IsVisible(boolean separator);
 
         IFACEMETHODIMP get_FallbackType(_Out_ ABI::AdaptiveNamespace::FallbackType * fallback);
+        IFACEMETHODIMP put_FallbackType(ABI::AdaptiveNamespace::FallbackType fallback);
         IFACEMETHODIMP get_FallbackContent(_COM_Outptr_ ABI::AdaptiveNamespace::IAdaptiveCardElement ** content);
+        IFACEMETHODIMP put_FallbackContent(_In_ ABI::AdaptiveNamespace::IAdaptiveCardElement * content);
 
         IFACEMETHODIMP get_ElementTypeString(_Outptr_ HSTRING* type);
 

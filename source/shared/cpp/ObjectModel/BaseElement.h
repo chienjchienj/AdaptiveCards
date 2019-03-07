@@ -87,7 +87,6 @@ namespace AdaptiveSharedNamespace
         void SetFallbackType(FallbackType type) { m_fallbackType = type; }
         void SetFallbackContent(std::shared_ptr<BaseElement> element)
         {
-            m_fallbackContent.reset();
             m_fallbackContent = element;
         }
 

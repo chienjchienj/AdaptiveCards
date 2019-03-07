@@ -47,6 +47,16 @@ namespace AdaptiveNamespace
             return AdaptiveActionElementBase::get_FallbackContent(content);
         }
 
+        IFACEMETHODIMP put_FallbackType(ABI::AdaptiveNamespace::FallbackType fallback)
+        {
+            return AdaptiveActionElementBase::put_FallbackType(fallback);
+        }
+
+        IFACEMETHODIMP put_FallbackContent(_In_ ABI::AdaptiveNamespace::IAdaptiveActionElement* content)
+        {
+            return AdaptiveActionElementBase::put_FallbackContent(content);
+        }
+
         IFACEMETHODIMP get_IconUrl(_Outptr_ HSTRING* iconUrl)
         {
             return AdaptiveActionElementBase::get_IconUrl(iconUrl);

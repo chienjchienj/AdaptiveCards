@@ -86,6 +86,8 @@ namespace UWPUnitTests
             public bool Separator { get; set; }
             public Spacing Spacing { get; set; }
             public bool IsVisible { get; set; }
+            IAdaptiveCardElement IAdaptiveCardElement.FallbackContent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            FallbackType IAdaptiveCardElement.FallbackType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         };
         class TestElementParser : IAdaptiveElementParser
         {
@@ -189,6 +191,8 @@ namespace UWPUnitTests
             public string IconUrl { get; set; }
             public string Sentiment { get; set; }
             public string Title { get; set; }
+            IAdaptiveActionElement IAdaptiveActionElement.FallbackContent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            FallbackType IAdaptiveActionElement.FallbackType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         };
 
         class TestActionParser : IAdaptiveActionParser

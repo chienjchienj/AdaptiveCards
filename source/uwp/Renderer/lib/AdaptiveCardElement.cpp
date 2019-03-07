@@ -81,6 +81,23 @@ namespace AdaptiveNamespace
         return m_fallbackContent.CopyTo(content);
     }
 
+    IFACEMETHODIMP AdaptiveCardElementBase::put_FallbackType(ABI::AdaptiveNamespace::FallbackType fallback)
+    {
+        if (fallback != ABI::AdaptiveNamespace::FallbackType::Content)
+        {
+            m_fallbackContent.Reset();
+        }
+
+        m_fallbackType = fallback;
+        return S_OK;
+    }
+
+    IFACEMETHODIMP AdaptiveCardElementBase::put_FallbackContent(_In_ ABI::AdaptiveNamespace::IAdaptiveCardElement * content)
+    {
+        m_fallbackContent = content;
+        return S_OK;
+    }
+
     IFACEMETHODIMP AdaptiveCardElementBase::get_Id(_Outptr_ HSTRING* id) { return m_id.CopyTo(id); }
 
     IFACEMETHODIMP AdaptiveCardElementBase::put_Id(_In_ HSTRING id) { return m_id.Set(id); }

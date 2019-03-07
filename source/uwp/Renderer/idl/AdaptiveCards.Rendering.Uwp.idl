@@ -573,7 +573,9 @@ AdaptiveNamespaceStart
         [propput] HRESULT IsVisible([in] boolean value);
 
         [propget] HRESULT FallbackType([out, retval] FallbackType * value);
+        [propput] HRESULT FallbackType([in] FallbackType value);
         [propget] HRESULT FallbackContent([out, retval] IAdaptiveCardElement ** content);
+        [propput] HRESULT FallbackContent([in] IAdaptiveCardElement * content);
 
         [propget] HRESULT AdditionalProperties([out, retval] Windows.Data.Json.JsonObject** json);
         [propput] HRESULT AdditionalProperties([in] Windows.Data.Json.JsonObject* json);
@@ -2654,7 +2656,9 @@ AdaptiveNamespaceStart
         [propput] HRESULT Id([in] HSTRING value);
 
         [propget] HRESULT FallbackType([out, retval] FallbackType * value);
+        [propput] HRESULT FallbackType([in] FallbackType value);
         [propget] HRESULT FallbackContent([out, retval] IAdaptiveActionElement ** content);
+        [propput] HRESULT FallbackContent([in] IAdaptiveActionElement * content);
 
         [propget] HRESULT IconUrl([out, retval] HSTRING* value);
         [propput] HRESULT IconUrl([in] HSTRING value);
