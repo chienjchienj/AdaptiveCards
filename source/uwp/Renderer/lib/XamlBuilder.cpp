@@ -143,7 +143,7 @@ namespace AdaptiveNamespace
                 }
             }
             ComPtr<IAdaptiveRenderArgs> renderArgs;
-            RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&renderArgs, containerStyle, nullptr));
+            RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&renderArgs, containerStyle, nullptr, nullptr));
 
             ComPtr<IPanel> bodyElementContainer;
             ComPtr<IUIElement> rootElement =
@@ -170,7 +170,7 @@ namespace AdaptiveNamespace
             RETURN_IF_FAILED(adaptiveCard->get_Body(&body));
             ComPtr<IAdaptiveRenderArgs> bodyRenderArgs;
             RETURN_IF_FAILED(
-                MakeAndInitialize<AdaptiveRenderArgs>(&bodyRenderArgs, containerStyle, rootAsFrameworkElement.Get()));
+                MakeAndInitialize<AdaptiveRenderArgs>(&bodyRenderArgs, containerStyle, rootAsFrameworkElement.Get(), nullptr));
             RETURN_IF_FAILED(
                 BuildPanelChildren(body.Get(), bodyElementContainer.Get(), renderContext, bodyRenderArgs.Get(), [](IUIElement*) {}));
 
@@ -857,9 +857,9 @@ namespace AdaptiveNamespace
             ABI::AdaptiveNamespace::FallbackType elementFallback;
             element->get_FallbackType(&elementFallback);
             const bool elementHasFallback = (elementFallback != FallbackType_None);
+            renderArgs->put_AncestorHasFallback(elementHasFallback || ancestorHasFallback);
             if (elementRenderer != nullptr)
             {
-                renderArgs->put_AncestorHasFallback(elementHasFallback || ancestorHasFallback);
                 ComPtr<IAdaptiveHostConfig> hostConfig;
                 RETURN_IF_FAILED(renderContext->get_HostConfig(&hostConfig));
                 // First element does not need a separator added
@@ -906,7 +906,6 @@ namespace AdaptiveNamespace
 
                     childCreatedCallback(newControl.Get());
                 }
-                renderArgs->put_AncestorHasFallback(ancestorHasFallback);
             }
 
             if (elementRenderer == nullptr || hr == E_PERFORM_FALLBACK)
@@ -1000,6 +999,7 @@ namespace AdaptiveNamespace
                                               HStringReference(errorString.c_str()).Get());
                 }
             }
+            renderArgs->put_AncestorHasFallback(ancestorHasFallback);
             return hr;
         });
         renderArgs->put_AncestorHasFallback(ancestorHasFallback);
@@ -1112,7 +1112,7 @@ namespace AdaptiveNamespace
             THROW_IF_FAILED(adaptiveImage.As(&adaptiveCardElement));
             ComPtr<AdaptiveRenderArgs> childRenderArgs;
             THROW_IF_FAILED(
-                MakeAndInitialize<AdaptiveRenderArgs>(&childRenderArgs, containerStyle, buttonContentsStackPanel.Get()));
+                MakeAndInitialize<AdaptiveRenderArgs>(&childRenderArgs, containerStyle, buttonContentsStackPanel.Get(), nullptr));
 
             ComPtr<IAdaptiveElementRendererRegistration> elementRenderers;
             THROW_IF_FAILED(renderContext->get_ElementRenderers(&elementRenderers));
@@ -2502,7 +2502,7 @@ namespace AdaptiveNamespace
         ComPtr<IFrameworkElement> parentElement;
         RETURN_IF_FAILED(renderArgs->get_ParentElement(&parentElement));
         ComPtr<IAdaptiveRenderArgs> newRenderArgs;
-        RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&newRenderArgs, containerStyle, parentElement.Get()));
+        RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&newRenderArgs, containerStyle, parentElement.Get(), renderArgs));
 
         ComPtr<IPanel> containerPanelAsPanel;
         RETURN_IF_FAILED(containerPanel.As(&containerPanelAsPanel));
@@ -2621,7 +2621,7 @@ namespace AdaptiveNamespace
         ComPtr<IFrameworkElement> parentElement;
         RETURN_IF_FAILED(renderArgs->get_ParentElement(&parentElement));
         ComPtr<IAdaptiveRenderArgs> newRenderArgs;
-        RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&newRenderArgs, containerStyle, parentElement.Get()));
+        RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&newRenderArgs, containerStyle, parentElement.Get(), renderArgs));
 
         ComPtr<IPanel> columnAsPanel;
         THROW_IF_FAILED(columnPanel.As(&columnAsPanel));
@@ -2724,7 +2724,7 @@ namespace AdaptiveNamespace
         ComPtr<IFrameworkElement> parentElement;
         RETURN_IF_FAILED(renderArgs->get_ParentElement(&parentElement));
         ComPtr<IAdaptiveRenderArgs> newRenderArgs;
-        RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&newRenderArgs, containerStyle, parentElement.Get()));
+        RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&newRenderArgs, containerStyle, parentElement.Get(), renderArgs));
 
         // If container style was explicitly assigned, apply background
         ComPtr<IAdaptiveHostConfig> hostConfig;
@@ -2851,7 +2851,7 @@ namespace AdaptiveNamespace
                 ComPtr<IAdaptiveRenderArgs> columnRenderArgs;
                 ABI::AdaptiveNamespace::ContainerStyle style;
                 RETURN_IF_FAILED(renderArgs->get_ContainerStyle(&style));
-                RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&columnRenderArgs, style, columnDefinition.Get()));
+                RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&columnRenderArgs, style, columnDefinition.Get(), renderArgs));
 
                 // Build the Column
                 ComPtr<IUIElement> xamlColumn;
@@ -3080,7 +3080,7 @@ namespace AdaptiveNamespace
             RETURN_IF_FAILED(renderArgs->get_ContainerStyle(&containerStyle));
 
             ComPtr<AdaptiveRenderArgs> childRenderArgs;
-            RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&childRenderArgs, containerStyle, xamlGrid.Get()));
+            RETURN_IF_FAILED(MakeAndInitialize<AdaptiveRenderArgs>(&childRenderArgs, containerStyle, xamlGrid.Get(), renderArgs));
 
             XamlHelpers::IterateOverVector<ABI::AdaptiveNamespace::AdaptiveImage, ABI::AdaptiveNamespace::IAdaptiveImage>(
                 images.Get(),
